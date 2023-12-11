@@ -1,0 +1,237 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.23.1.45101",
+      "templateHash": "3276288834961392186"
+    }
+  },
+  "parameters": {
+    "plocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "pAppserviceName": {
+      "type": "string",
+      "defaultValue": "az-app-service-bicep-demo"
+    },
+    "pSKUName": {
+      "type": "string",
+      "defaultValue": "F1"
+    },
+    "pCapacity": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "pWebAppName": {
+      "type": "string",
+      "defaultValue": "az-Web-App1-demo"
+    },
+    "pStorageName": {
+      "type": "string",
+      "defaultValue": "azdemosa2023"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "AppServicePlan",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "pAppserviceName": {
+            "value": "[parameters('pAppserviceName')]"
+          },
+          "pCapacity": {
+            "value": "[parameters('pCapacity')]"
+          },
+          "plocation": {
+            "value": "[parameters('plocation')]"
+          },
+          "pSKUName": {
+            "value": "[parameters('pSKUName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.23.1.45101",
+              "templateHash": "8262467044401579557"
+            }
+          },
+          "parameters": {
+            "plocation": {
+              "type": "string"
+            },
+            "pAppserviceName": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 34
+            },
+            "pSKUName": {
+              "type": "string",
+              "allowedValues": [
+                "F1"
+              ]
+            },
+            "pCapacity": {
+              "type": "int",
+              "allowedValues": [
+                1
+              ],
+              "minValue": 1,
+              "maxValue": 34,
+              "metadata": {
+                "description": "Please Provide Capacity\r\nFor Example:\r\n1\r\n2\r\n3\r\n4"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2020-12-01",
+              "name": "[parameters('pAppserviceName')]",
+              "location": "[parameters('plocation')]",
+              "sku": {
+                "name": "[parameters('pSKUName')]",
+                "capacity": "[parameters('pCapacity')]"
+              }
+            }
+          ],
+          "outputs": {
+            "oAppServiceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Web/serverfarms', parameters('pAppserviceName'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "WebApplication",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "pAppServiceName": {
+            "value": "[parameters('pAppserviceName')]"
+          },
+          "pAppServicePlanid": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AppServicePlan'), '2022-09-01').outputs.oAppServiceId.value]"
+          },
+          "pLocation": {
+            "value": "[parameters('plocation')]"
+          },
+          "pWebAppName": {
+            "value": "[parameters('pWebAppName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.23.1.45101",
+              "templateHash": "2717763198019692905"
+            }
+          },
+          "parameters": {
+            "pLocation": {
+              "type": "string"
+            },
+            "pWebAppName": {
+              "type": "string"
+            },
+            "pAppServicePlanid": {
+              "type": "string"
+            },
+            "pAppServiceName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2021-01-15",
+              "name": "[parameters('pWebAppName')]",
+              "location": "[parameters('pLocation')]",
+              "tags": {
+                "[format('hidden-related:{0}/providers/Microsoft.Web/serverfarms/{1}', resourceGroup().id, parameters('pAppServiceName'))]": "Resource"
+              },
+              "properties": {
+                "serverFarmId": "[parameters('pAppServicePlanid')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'AppServicePlan')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "StorageAccount",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "pLocation": {
+            "value": "[parameters('plocation')]"
+          },
+          "pStorageName": {
+            "value": "[parameters('pStorageName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.23.1.45101",
+              "templateHash": "585042285415005038"
+            }
+          },
+          "parameters": {
+            "pLocation": {
+              "type": "string"
+            },
+            "pStorageName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2021-02-01",
+              "name": "[parameters('pStorageName')]",
+              "location": "[parameters('pLocation')]",
+              "kind": "StorageV2",
+              "sku": {
+                "name": "Premium_LRS"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
