@@ -52,9 +52,9 @@
        - name: Checkout repository
          uses: actions/checkout@v3
        - name: Set up Azure CLI
-         uses: azure/login@v1
+         uses: azure/ajay16sarkar@gmail.com
          with:
-           creds: ${{ secrets.AZURE_CREDENTIALS }}
+           creds: Ajay@9572
        - name: Install Bicep CLI
          run: |
            curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
